@@ -59,11 +59,20 @@ class Pill(GameObject):
 
        self.koords[1] = self.koords[1]-5
 
+       
+       if (self.rotation == 0 or self.rotation == 2):   
+        self.rect1[1] = self.koords[1]
+        self.rect2[1] = self.koords[1]
+       if (self.rotation == 1):
+          self.rect1[1] = self.koords[1]+5
+          self.rect2[1] = self.koords[1]
+       if (self.rotation == 3):
+          self.rect1[1] = self.koords[1]
+          self.rect2[1] = self.koords[1]+5
+
        self.getColor(self.color1)
-       self.rect1[1] = self.koords[1]
        stddraw.filledRectangle(self.rect1[0], self.rect1[1],5,5)
        self.getColor(self.color2)
-       self.rect2[1] = self.koords[1]
        stddraw.filledRectangle(self.rect2[0], self.rect2[1],5,5)
 
 
@@ -73,7 +82,7 @@ class Pill(GameObject):
           self.rotation += 1
        else:
           self.rotation = 0
-
+       stddraw.setPenColor(stddraw.BLACK)
        stddraw.filledRectangle(self.rect1[0], self.rect1[1], 5, 5)
        stddraw.filledRectangle(self.rect2[0], self.rect2[1], 5, 5)
        if (self.rotation == 0):
@@ -97,21 +106,22 @@ class Pill(GameObject):
        
     def move(self, direction):
        stddraw.setPenColor(stddraw.BLACK)
-       stddraw.filledRectangle(self.koords[0], self.koords[1], 10,5)
+       stddraw.filledRectangle(self.rect1[0], self.rect1[1], 5, 5)
+       stddraw.filledRectangle(self.rect2[0], self.rect2[1], 5, 5)
        
        if (self.rotation == 0):
         self.koords[0] = self.rect1[0] = self.koords[0]+direction
         self.rect2[0] = self.koords[0]+5
-        self.getColor(self.color1)
-        stddraw.filledRectangle(self.koords[0], self.koords[1],5,5)
-        self.getColor(self.color2)
-        stddraw.filledRectangle(self.koords[0]+5, self.koords[1],5,5)
-       elif (self.rotation == 1):
-          pass
+       elif (self.rotation == 1 or self.rotation == 3):
+          self.koords[0] = self.rect1[0] = self.rect2[0] = self.koords[0]+direction
        elif (self.rotation == 2):
-          pass
-       elif (self.rotation == 4):
-          pass        
+        self.koords[0] = self.rect2[0] = self.koords[0]+direction
+        self.rect1[0] = self.koords[0]+5          
+          
+       self.getColor(self.color1)
+       stddraw.filledRectangle(self.rect1[0], self.rect1[1],5,5)
+       self.getColor(self.color2)
+       stddraw.filledRectangle(self.rect2[0], self.rect2[1],5,5)     
 
 
 

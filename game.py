@@ -85,7 +85,7 @@ class DrMario:
         #print(self.y_koordstogamefield(self.fallingpill[0].koords[1]))
         if (self.gamefield[self.x_koordstogamefield(self.fallingpill[0].koords[0])][self.y_koordstogamefield(self.fallingpill[0].koords[1])-1] == 1 or self.gamefield[int((self.fallingpill[0].koords[0]-20)/5)-1][self.y_koordstogamefield(self.fallingpill[0].koords[1])-1] == 1 or self.y_koordstogamefield(self.fallingpill[0].koords[1]) == 0):
          self.coloredField.append(ColoredField(self.fallingpill[0].rect1[0], self.fallingpill[0].rect1[1], self.fallingpill[0].color1))
-         self.coloredField.append(ColoredField(self.fallingpill[0].rect2[0]+5, self.fallingpill[0].rect2[1], self.fallingpill[0].color2))
+         self.coloredField.append(ColoredField(self.fallingpill[0].rect2[0], self.fallingpill[0].rect2[1], self.fallingpill[0].color2))
          self.gamefield[self.x_koordstogamefield(self.coloredField[-1].koords[0])][self.y_koordstogamefield(self.coloredField[-1].koords[1])] = self.gamefield[self.x_koordstogamefield(self.coloredField[-2].koords[0])][self.y_koordstogamefield(self.coloredField[-2].koords[1])] = 1
          self.fallingpill.clear()
 
