@@ -4,6 +4,7 @@ import random
 from gameobjects import Virus, Pill, ColoredField
 import pygame.key
 from utils import *
+from pygame import mixer
 
 class DrMario:
     def __init__(self, difficulty, speed, player):
@@ -11,7 +12,7 @@ class DrMario:
         stddraw.setXscale(0,100)
         stddraw.setYscale(0,100)
         self.difficulty = int(difficulty)*4+4
-        self.speed = speed
+        self.speed = int(speed)*100+100
         b = False
         #init gametable
         #background
@@ -38,12 +39,19 @@ class DrMario:
         stddraw.filledRectangle(30, 5, 40, 80)
         stddraw.filledRectangle(45,85,10,10)  
         stddraw.filledRectangle(75, 60, 20, 20)
+        stddraw.filledRectangle(75, 10, 20, 20)
         stddraw.setPenColor(stddraw.CYAN)
         stddraw.rectangle(29,4,42,82)
         stddraw.line(45,86,45,95)
         stddraw.line(55,86,55,95)
         stddraw.line(45,95,55,95)
         
+        stddraw.setFontFamily("Courier")
+        stddraw.setFontSize(30)
+        stddraw.text(85, 15, "Speed " + str(speed))
+        stddraw.text(85, 20, "Level " + str(difficulty))
+        stddraw.text(85, 25, "Player " + str(player))
+
         self.color_1 = getrandomColor()
         self.color_2 = getrandomColor()
         self.fallingpill = []
@@ -71,6 +79,12 @@ class DrMario:
             
             r += 1
         stddraw.show(10)
+
+        #Hintergrundmusik initialisieren
+        mixer.init()
+        mixer.music.load('assets/background.mp3')
+        mixer.music.play()
+
         self.main_loop()
 
 
@@ -111,8 +125,32 @@ class DrMario:
          self.color_2 = getrandomColor()
         #Wenn Felder wo neue Pille eigentlich entsteht belegt sind -> beende Spiel
         elif (self.gamefield[3][15] > 0 or self.gamefield[4][15] > 0):
-           print("Game Over")
-           quit()
+           stddraw.setPenColor(stddraw.RED)
+           stddraw.filledRectangle(0,0,100,100)
+           stddraw.setPenColor(stddraw.YELLOW)
+           #L
+           stddraw.filledRectangle(10,40,5,40)
+           stddraw.filledRectangle(15,40,10,5)
+           #O
+           stddraw.filledRectangle(30,45,5,30)
+           stddraw.filledRectangle(35,40,10,5)
+           stddraw.filledRectangle(35,75,10,5)
+           stddraw.filledRectangle(45,45,5,30)
+           #S
+           stddraw.filledRectangle(60, 75, 15, 5)
+           stddraw.filledRectangle(55, 65, 5, 10)
+           stddraw.filledRectangle(60, 60, 10, 5)
+           stddraw.filledRectangle(70, 45, 5, 15)
+           stddraw.filledRectangle(55, 40, 15, 5)
+           #E
+           stddraw.filledRectangle(80, 40, 5, 40)
+           stddraw.filledRectangle(85, 75, 10, 5)
+           stddraw.filledRectangle(85, 60, 10, 5)
+           stddraw.filledRectangle(85, 40, 10, 5)
+           stddraw.text(50, 20, "SCORE")
+           stddraw.show()
+           while True:
+              pass
         #Wenn das nicht der Fall ist, lasse die aktuelle Pille weiter fallen
         else:
          self.fallingpill[0].falling()
@@ -158,8 +196,29 @@ class DrMario:
       
          #Überprüfung, ob Virus entfernt. Wenn alle entfernt -> gewonnen
         if not self.virus:
-           print("Gewonnen")
-           quit()
+           stddraw.setPenColor(stddraw.DARK_GREEN)
+           stddraw.filledRectangle(0,0,100,100)
+           stddraw.setPenColor(stddraw.YELLOW)
+           #W
+           stddraw.filledRectangle(40, 55,5,30)
+           stddraw.filledRectangle(10, 55,5,30)
+           stddraw.filledRectangle(15, 50,5,5)
+           stddraw.filledRectangle(35, 50,5,5)
+           stddraw.filledRectangle(20, 55,5,5)
+           stddraw.filledRectangle(30, 55,5,5)
+           stddraw.filledRectangle(25, 55, 5,15)
+           #I
+           stddraw.filledRectangle(50,50,5,35)
+           #N
+           stddraw.filledRectangle(60,50,5,35)
+           stddraw.filledRectangle(65,70,5,5)
+           stddraw.filledRectangle(70, 65,5,5)
+           stddraw.filledRectangle(75, 60,5,5)
+           stddraw.filledRectangle(80,50,5,35)
+           stddraw.text(50, 20, "SCORE")
+           stddraw.show()
+           while True:
+              pass
         for v in self.virus:
            if(self.gamefield[v.x][v.y] == 0):
               self.virus.remove(v)
@@ -170,7 +229,7 @@ class DrMario:
        stddraw.filledRectangle(80, 67.5, 5, 5)
        setColor(self.color_2)
        stddraw.filledRectangle(85, 67.5, 5,5)
-       stddraw.show(200)
+       stddraw.show(self.speed)
 
 
 #Abfragen und dann beantworten
