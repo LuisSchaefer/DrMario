@@ -3,6 +3,7 @@ import stddraw
 import random
 from gameobjects import Virus, Pill, ColoredField
 import pygame.key
+from utils import *
 
 class DrMario:
     def __init__(self, difficulty, speed, player):
@@ -38,28 +39,36 @@ class DrMario:
         stddraw.filledRectangle(45,85,10,10)  
         stddraw.filledRectangle(75, 60, 20, 20)
         stddraw.setPenColor(stddraw.CYAN)
-        stddraw.rectangle(30,5,40,80)
-        stddraw.line(45,85,45,95)
-        stddraw.line(55,85,55,95)
+        stddraw.rectangle(29,4,42,82)
+        stddraw.line(45,86,45,95)
+        stddraw.line(55,86,55,95)
         stddraw.line(45,95,55,95)
+        
+        self.color_1 = getrandomColor()
+        self.color_2 = getrandomColor()
         self.fallingpill = []
-        self.fallingpill.append(Pill())
+        self.fallingpill.append(Pill(self.color_1, self.color_2))
+        self.color_1 = getrandomColor()
+        self.color_2 = getrandomColor()
         self.coloredField = []
+        self.virus = []
         self.gamefield = [[0 for j in range(16)] for i in range(8)]
         #init virus
         r = 0
         x = y = 1
         while r < self.difficulty:
             
-            x = random.randint(1, 8)
-            y = random.randint(1, 13)
+            x = random.randint(0, 7)
+            y = random.randint(0, 12)
 
-            while (self.gamefield[x-1][y-1] == 1):
-              x = random.randint(1, 8)
-              y = random.randint(1, 13) 
+            while (self.gamefield[x][y] > 0):
+              x = random.randint(0,7)
+              y = random.randint(0,12) 
 
-            self.gamefield[x-1][y-1] = 1
-            Virus(x*5+25, y*5)
+            self.virus.append(Virus(x,y))
+            #ToDo Wahrscheinlich Virus Liste, wenn entfernt Viren löschen, wenn Liste leer -> Spiel gewonnen
+            self.gamefield[x][y] = self.virus[-1].getColor()
+            
             r += 1
         stddraw.show(10)
         self.main_loop()
@@ -74,41 +83,96 @@ class DrMario:
     def input(self):
        is_key_pressed = pygame.key.get_pressed()
        if is_key_pressed[pygame.K_a]:
-          self.fallingpill[0].move(-5)
+          #Wenn nicht außerhalb des Spielfeldes (kleinergleich -1) und das Feld noch nicht belegt ist, wo die Pille hin will
+          if (self.fallingpill[0].rect1[0]-1 > -1 and self.fallingpill[0].rect2[0]-1 > -1 and self.gamefield[self.fallingpill[0].rect1[0]-1][self.fallingpill[0].rect1[1]] == 0 and self.gamefield[self.fallingpill[0].rect2[0]-1][self.fallingpill[0].rect2[1]] == 0):
+           self.fallingpill[0].move(-1)
        if is_key_pressed[pygame.K_d]:
-          self.fallingpill[0].move(5)
+          #Wenn nicht außerhalb des Spielfeldes (größergleich 8) und das Feld noch nicht belegt ist, wo die Pille hin will
+          if (self.fallingpill[0].rect1[0]+1 < 8 and self.fallingpill[0].rect2[0]+1 < 8 and self.gamefield[self.fallingpill[0].rect1[0]+1][self.fallingpill[0].rect1[1]] == 0 and self.gamefield[self.fallingpill[0].rect2[0]+1][self.fallingpill[0].rect2[1]] == 0):
+           self.fallingpill[0].move(1)
        if is_key_pressed[pygame.K_SPACE]:
-          self.fallingpill[0].rotate()
+          #Wenn es durch das rotieren nicht außerhalb des Spielfelds ist, rotiere
+          if((self.fallingpill[0].rotation == 3 and self.fallingpill[0].rect2[0] > 0) or (self.fallingpill[0].rotation == 1 and self.fallingpill[0].rect2[0] < 7) or self.fallingpill[0].rotation == 2 or self.fallingpill[0].rotation == 0):
+           self.fallingpill[0].rotate()
        
 
     def logic(self):
-        #print(self.y_koordstogamefield(self.fallingpill[0].koords[1]))
-        if (self.gamefield[self.x_koordstogamefield(self.fallingpill[0].koords[0])][self.y_koordstogamefield(self.fallingpill[0].koords[1])-1] == 1 or self.gamefield[int((self.fallingpill[0].koords[0]-20)/5)-1][self.y_koordstogamefield(self.fallingpill[0].koords[1])-1] == 1 or self.y_koordstogamefield(self.fallingpill[0].koords[1]) == 0):
+        #Logik für aktuelle Pille 1. Kollisionscheck: Wenn die Pille landet mache sie zu zwei farbigen Feldern
+        if (self.gamefield[self.fallingpill[0].rect1[0]][(self.fallingpill[0].rect1[1])-1] > 0 or self.gamefield[self.fallingpill[0].rect2[0]][(self.fallingpill[0].rect2[1])-1] > 0 or self.fallingpill[0].koords[1] == 0):
          self.coloredField.append(ColoredField(self.fallingpill[0].rect1[0], self.fallingpill[0].rect1[1], self.fallingpill[0].color1))
          self.coloredField.append(ColoredField(self.fallingpill[0].rect2[0], self.fallingpill[0].rect2[1], self.fallingpill[0].color2))
-         self.gamefield[self.x_koordstogamefield(self.coloredField[-1].koords[0])][self.y_koordstogamefield(self.coloredField[-1].koords[1])] = self.gamefield[self.x_koordstogamefield(self.coloredField[-2].koords[0])][self.y_koordstogamefield(self.coloredField[-2].koords[1])] = 1
+         self.gamefield[self.coloredField[-1].x][self.coloredField[-1].y] = self.coloredField[-1].getColor()
+         self.gamefield[self.coloredField[-2].x][self.coloredField[-2].y] = self.coloredField[-2].getColor()
          self.fallingpill.clear()
-
-        if (not self.fallingpill and self.gamefield[3][15] != 1 and self.gamefield[4][15] != 1):
-         self.fallingpill.append(Pill())        
-        elif (self.gamefield[3][15] == 1 or self.gamefield[4][15] == 1):
+        #Wenn somit keine Pille mehr existiert und die Felder, welche für Spielende sorgen nicht belegt sind: Erstelle neue Pille
+        if (not self.fallingpill and self.gamefield[3][15] == 0 and self.gamefield[4][15] == 0):
+         self.fallingpill.append(Pill(self.color_1, self.color_2))
+         self.color_1 = getrandomColor()
+         self.color_2 = getrandomColor()
+        #Wenn Felder wo neue Pille eigentlich entsteht belegt sind -> beende Spiel
+        elif (self.gamefield[3][15] > 0 or self.gamefield[4][15] > 0):
            print("Game Over")
            quit()
+        #Wenn das nicht der Fall ist, lasse die aktuelle Pille weiter fallen
         else:
-         self.gamefield[self.x_koordstogamefield(self.fallingpill[0].koords[0])][self.y_koordstogamefield(self.fallingpill[0].koords[1])] = self.gamefield[int((self.fallingpill[0].koords[0]-20)/5)-1][self.y_koordstogamefield(self.fallingpill[0].koords[1])] = 0
          self.fallingpill[0].falling()
       
-      #check collision
+        #Gefärbte Felder löschen, wenn in sich in Zeilen vier oder mehr Farben aneinander gleichen
+        old_value = count = 0
+        for i in range(8):
+         old_value = self.gamefield[i][0]
+         count = 0
+         for j in range(16):
+            new_value = self.gamefield[i][j]
+            if (new_value == old_value and new_value != 0 and j != 0):
+               count += 1
+            elif (count >= 3):
+             stddraw.setPenColor(stddraw.BLACK)
+             self.gamefield[i][j-(count+1)] = 0
+             stddraw.filledRectangle(gamefield_to_x_koords(i), gamefield_to_y_koords(j-(count+1)), 5,5)
+             while (count > 0):
+                  self.gamefield[i][j-count] = 0
+                  stddraw.filledRectangle(gamefield_to_x_koords(i), gamefield_to_y_koords(j-count), 5,5)                  
+
+                  for field in self.coloredField:
+                     if (field.x == i and field.y == j-count):
+                        self.coloredField.remove(field)
+                  count -= 1
+
+             count = 0
+            elif (new_value != old_value):
+               count = 0 
+            old_value = new_value
+        
+        #Überprüfung, ob Steine (keine Viren!) fallen. Das passiert wenn kein Stein mehr im Umkreis (mit Liste usw.)
+        for field in self.coloredField:
+           try:
+            if (self.gamefield[field.x+1][field.y] == 0 and self.gamefield[field.x-1][field.y] == 0 and self.gamefield[field.x][field.y-1] == 0):
+               while (field.y > 0 and self.gamefield[field.x][field.y-1] == 0):
+                  self.gamefield[field.x][field.y] = 0
+                  field.falling()
+               self.gamefield[field.x][field.y] = field.getColor()
+           except IndexError:
+              pass
+           
+      
+         #Überprüfung, ob Virus entfernt. Wenn alle entfernt -> gewonnen
+        if not self.virus:
+           print("Gewonnen")
+           quit()
+        for v in self.virus:
+           if(self.gamefield[v.x][v.y] == 0):
+              self.virus.remove(v)
 
 
     def draw(self):
+       setColor(self.color_1)
+       stddraw.filledRectangle(80, 67.5, 5, 5)
+       setColor(self.color_2)
+       stddraw.filledRectangle(85, 67.5, 5,5)
        stddraw.show(200)
 
-    def x_koordstogamefield(self, x):
-       return int((x-25)/5)-1
-    
-    def y_koordstogamefield(self, y):
-       return int(y/5)-1
+
 #Abfragen und dann beantworten
 #Difficulty 0-20, Speed 1-3, Spieleranzahl 1-2
 DrMario(sys.argv[1], sys.argv[2], sys.argv[3])
