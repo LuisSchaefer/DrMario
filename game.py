@@ -5,15 +5,22 @@ from gameobjects import Virus, Pill, ColoredField
 import pygame.key
 from utils import *
 from pygame import mixer
+from gamesettings import Highscore
 
 class DrMario:
-    def __init__(self, difficulty, speed, player):
+    HIGHSCORE_FILE = "highscore.txt"
+    def __init__(self, difficulty, speed, player, playername):
         stddraw.setCanvasSize(900,900)
         stddraw.setXscale(0,100)
         stddraw.setYscale(0,100)
         self.difficulty = int(difficulty)*4+4
         self.speed = int(speed)*100+100
+        self.playername = str(playername)
         b = False
+
+        self.highscore = Highscore(self.HIGHSCORE_FILE)
+        self.score = 0
+
         #init gametable
         #background
         r = c = 0
@@ -40,6 +47,7 @@ class DrMario:
         stddraw.filledRectangle(45,85,10,10)  
         stddraw.filledRectangle(75, 60, 20, 20)
         stddraw.filledRectangle(75, 10, 20, 20)
+        stddraw.filledRectangle(5, 45, 20,35)
         stddraw.setPenColor(stddraw.CYAN)
         stddraw.rectangle(29,4,42,82)
         stddraw.line(45,86,45,95)
@@ -52,6 +60,12 @@ class DrMario:
         stddraw.text(85, 20, "Level " + str(difficulty))
         stddraw.text(85, 25, "Player " + str(player))
 
+        stddraw.text(15, 75, "Highscore")
+        stddraw.text(15, 70, self.highscore.getName())
+        stddraw.text(15, 65, self.highscore.getHighScore())
+        stddraw.text(15, 55, "Score")
+        stddraw.text(15, 50, str(self.score))
+
         self.color_1 = getrandomColor()
         self.color_2 = getrandomColor()
         self.fallingpill = []
@@ -61,6 +75,8 @@ class DrMario:
         self.coloredField = []
         self.virus = []
         self.gamefield = [[0 for j in range(16)] for i in range(8)]
+
+
         #init virus
         r = 0
         x = y = 1
@@ -147,7 +163,9 @@ class DrMario:
            stddraw.filledRectangle(85, 75, 10, 5)
            stddraw.filledRectangle(85, 60, 10, 5)
            stddraw.filledRectangle(85, 40, 10, 5)
-           stddraw.text(50, 20, "SCORE")
+
+           self.highscore.setNewHighScore(self.playername, self.score)
+           stddraw.text(50, 20, "SCORE: " + str(self.score))
            stddraw.show()
            while True:
               pass
@@ -215,13 +233,18 @@ class DrMario:
            stddraw.filledRectangle(70, 65,5,5)
            stddraw.filledRectangle(75, 60,5,5)
            stddraw.filledRectangle(80,50,5,35)
-           stddraw.text(50, 20, "SCORE")
+
+           self.highscore.setNewHighScore(self.playername, self.score)
+
+           stddraw.text(50, 20, "SCORE: " + str(self.score))
            stddraw.show()
            while True:
               pass
+           
         for v in self.virus:
            if(self.gamefield[v.x][v.y] == 0):
               self.virus.remove(v)
+              self.score += self.speed
 
 
     def draw(self):
@@ -229,9 +252,13 @@ class DrMario:
        stddraw.filledRectangle(80, 67.5, 5, 5)
        setColor(self.color_2)
        stddraw.filledRectangle(85, 67.5, 5,5)
+       stddraw.setPenColor(stddraw.BLACK)
+       stddraw.filledRectangle(5, 45, 20,7.5)
+       stddraw.setPenColor(stddraw.CYAN)
+       stddraw.text(15, 50, str(self.score))
        stddraw.show(self.speed)
 
 
 #Abfragen und dann beantworten
-#Difficulty 0-20, Speed 1-3, Spieleranzahl 1-2
-DrMario(sys.argv[1], sys.argv[2], sys.argv[3])
+#Spielername, Difficulty 0-20, Speed 1-3, Spieleranzahl 1-2
+DrMario(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[1])
