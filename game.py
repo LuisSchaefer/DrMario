@@ -177,6 +177,20 @@ class DrMario:
           #Wenn es durch das rotieren nicht außerhalb des Spielfelds ist, rotiere
           if((self.fallingpill[0].rotation == 3 and self.fallingpill[0].rect2[0] > 0) or (self.fallingpill[0].rotation == 1 and self.fallingpill[0].rect2[0] < 7) or self.fallingpill[0].rotation == 2 or self.fallingpill[0].rotation == 0):
            self.fallingpill[0].rotate()
+        
+       if (self.player_number == 2):
+         if is_key_pressed[pygame.K_LEFT]:
+          #Wenn nicht außerhalb des Spielfeldes (kleinergleich -1) und das Feld noch nicht belegt ist, wo die Pille hin will
+          if (self.fallingpill_p2[0].rect1[0]-1 > -1 and self.fallingpill_p2[0].rect2[0]-1 > -1 and self.gamefield_p2[self.fallingpill_p2[0].rect1[0]-1][self.fallingpill_p2[0].rect1[1]] == 0 and self.gamefield_p2[self.fallingpill_p2[0].rect2[0]-1][self.fallingpill_p2[0].rect2[1]] == 0):
+           self.fallingpill_p2[0].move(-1)
+         if is_key_pressed[pygame.K_RIGHT]:
+          #Wenn nicht außerhalb des Spielfeldes (größergleich 8) und das Feld noch nicht belegt ist, wo die Pille hin will
+          if (self.fallingpill_p2[0].rect1[0]+1 < 8 and self.fallingpill_p2[0].rect2[0]+1 < 8 and self.gamefield_p2[self.fallingpill_p2[0].rect1[0]+1][self.fallingpill_p2[0].rect1[1]] == 0 and self.gamefield_p2[self.fallingpill_p2[0].rect2[0]+1][self.fallingpill_p2[0].rect2[1]] == 0):
+           self.fallingpill_p2[0].move(1)
+         if is_key_pressed[pygame.K_PLUS]:
+          #Wenn es durch das rotieren nicht außerhalb des Spielfelds ist, rotiere
+          if((self.fallingpill_p2[0].rotation == 3 and self.fallingpill_p2[0].rect2[0] > 0) or (self.fallingpill_p2[0].rotation == 1 and self.fallingpill_p2[0].rect2[0] < 7) or self.fallingpill_p2[0].rotation == 2 or self.fallingpill_p2[0].rotation == 0):
+           self.fallingpill_p2[0].rotate()
        
 
     def pill_collision(self, pill, gf, cf, gf_nr):
