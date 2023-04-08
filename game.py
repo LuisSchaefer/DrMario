@@ -10,9 +10,15 @@ from gamesettings import Highscore
 class DrMario:
     HIGHSCORE_FILE = "highscore.txt"
     def __init__(self, difficulty, speed, player, playername):
-        stddraw.setCanvasSize(900,900)
-        stddraw.setXscale(0,100)
+        #Spieleranzahl
+        self.player_number = int(player)
+
+        #Größe des Fensters und Skalen in Abhängigkeit von Spieleranzahl
+        stddraw.setCanvasSize(900*self.player_number,900)
+        stddraw.setXscale(0,100*self.player_number)
         stddraw.setYscale(0,100)
+
+        #Schwierigkeitsgrad/Level entspricht Anzahl Viren, Geschwindigkeit entspricht Schnelligkeit der Aktualisierung des Spielfeldes, Spielername(n) für Highscore speichern
         self.difficulty = int(difficulty)*4+4
         self.speed = int(speed)*100+100
         self.playername = str(playername)
@@ -43,17 +49,45 @@ class DrMario:
               stddraw.setPenColor(stddraw.color.GRAY)
               b = True
         stddraw.setPenColor(stddraw.color.BLACK)
+
+        #Spielfeld Spieler1
         stddraw.filledRectangle(30, 5, 40, 80)
         stddraw.filledRectangle(45,85,10,10)  
-        stddraw.filledRectangle(75, 60, 20, 20)
-        stddraw.filledRectangle(75, 10, 20, 20)
-        stddraw.filledRectangle(5, 45, 20,35)
+
         stddraw.setPenColor(stddraw.CYAN)
         stddraw.rectangle(29,4,42,82)
         stddraw.line(45,86,45,95)
         stddraw.line(55,86,55,95)
         stddraw.line(45,95,55,95)
         
+        #ggf. Spielfeld Spieler2 & Spielernamen speichern & Score2 Variable initialisieren
+        stddraw.setPenColor(stddraw.BLACK)
+        if (self.player_number == 2):
+           self.playername_p2 = playername_p2
+           self.score_p2 = 0
+           #Spielfeld
+           stddraw.filledRectangle(130, 5, 40, 80)
+           stddraw.filledRectangle(145,85,10,10)
+           #Score Feld
+           stddraw.filledRectangle(175,60,20,20)
+           #Ränder Spielfeld
+           stddraw.setPenColor(stddraw.CYAN)
+           stddraw.rectangle(129,4,42,82)
+           stddraw.line(145,86,145,95)
+           stddraw.line(155,86,155,95)
+           stddraw.line(145,95,155,95)
+           #Score Beschriftung
+           stddraw.text(15, 55, "Score")
+           stddraw.text(15, 50, str(self.score_p2))
+           stddraw.setPenColor(stddraw.BLACK)
+
+        #Felder für nächste Pille, Spielinformationen, Highscore  
+        stddraw.filledRectangle(75, 60, 20, 20)
+        stddraw.filledRectangle(75, 10, 20, 20)
+        stddraw.filledRectangle(5, 45, 20,35)
+
+        #Texte für die Informationsfelder einbauen
+        stddraw.setPenColor(stddraw.CYAN)
         stddraw.setFontFamily("Courier")
         stddraw.setFontSize(30)
         stddraw.text(85, 15, "Speed " + str(speed))
@@ -66,34 +100,53 @@ class DrMario:
         stddraw.text(15, 55, "Score")
         stddraw.text(15, 50, str(self.score))
 
+        #erste Pille und ihre Farbe 
         self.color_1 = getrandomColor()
         self.color_2 = getrandomColor()
+        self.pill_startkoords = [3, 15]
         self.fallingpill = []
         self.fallingpill.append(Pill(self.color_1, self.color_2))
-        self.color_1 = getrandomColor()
-        self.color_2 = getrandomColor()
+
+        #Liste für bemalte Felder, die keine Viren sind und Liste für Viren (Gegner), Speichern die Positionen
         self.coloredField = []
         self.virus = []
+        #Liste für gesamtes Spielfeld, enthält 0 für "nicht belegt", 1 für Farbe ROT, 2 für Farbe BLAU, 3 für Farbe GRÜN
         self.gamefield = [[0 for j in range(16)] for i in range(8)]
 
+        #Falls zwei Spieler -> dasselbe nochmal
+        if (self.player_number == 2):
+           self.fallingpill_p2 = []
+           #self.fallingpill_p2.append(Pill(self.color_1, self.color_2, self.pill_startkoords[0], self.pill_startkoords[1], 2))
+           self.coloredField_p2 = []
+           self.virus_p2 = []
+           self.gamefield_p2 = [[0 for j in range(16)] for i in range(8)]
 
-        #init virus
-        r = 0
-        x = y = 1
-        while r < self.difficulty:
-            
-            x = random.randint(0, 7)
-            y = random.randint(0, 12)
+        #darauffolgende Farbe von Pille initialisieren
+        self.color_1 = getrandomColor()
+        self.color_2 = getrandomColor()
+
+        #Initialisiere Virus, Anzahl entsprechend Schwierigkeitsgrad bzw. Level
+        i = 0
+        x = random.randint(0,7)
+        y = random.randint(0,12)
+        while i < self.difficulty:
+            #virus_color = getrandomColor()
 
             while (self.gamefield[x][y] > 0):
               x = random.randint(0,7)
               y = random.randint(0,12) 
-
+              
             self.virus.append(Virus(x,y))
-            #ToDo Wahrscheinlich Virus Liste, wenn entfernt Viren löschen, wenn Liste leer -> Spiel gewonnen
             self.gamefield[x][y] = self.virus[-1].getColor()
             
-            r += 1
+            if (self.player_number == 2):
+               #self.virus_p2.append(Virus(x,y,2))
+               #self.gamefield_p2[x][y] = virus_color
+               pass
+
+            i += 1
+
+        #Zeige Spielfeld    
         stddraw.show(10)
 
         #Hintergrundmusik initialisieren
@@ -101,6 +154,7 @@ class DrMario:
         mixer.music.load('assets/background.mp3')
         mixer.music.play()
 
+        #Starte die Hauptschleife
         self.main_loop()
 
 
