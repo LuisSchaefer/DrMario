@@ -259,6 +259,40 @@ class DrMario:
        stddraw.show(self.speed)
 
 
+player_number = input("Anzahl Spieler (1-2): ")
+while (checkInt(player_number) == False or int(player_number) > 2 or int(player_number) < 1):
+   print("Bitte Anzahl Spieler entweder auf 1 oder 2 setzen.")
+   player_number = input("Anzahl Spieler (1-2): ")
+print("Anzahl Spieler beträgt " + player_number)
+player_number = int(player_number)
+
+if (player_number == 2):
+ player_name_p1 = input("Spielername Spieler 1: ")
+ player_name_p2 = input("Spielername Spieler 2: ")
+ print("Spielername von Spieler 1 lautet: " + player_name_p1)
+ print("Spielername von Spieler 2 lautet: " + player_name_p2)
+
+elif (player_number == 1):
+  player_name_p1 = input("Spielername: ")
+  player_name_p2 = "null"
+  print("Spielername lautet: " + player_name_p1)
+
+
+difficulty = input("Level (0-20) 0 ist einfach, 20 ist schwer: ")
+while(checkInt(difficulty) == False or int(difficulty) < 0 or int(difficulty) > 20):
+  print("Bitte Level zwischen 0 und 20 eingeben.")
+  difficulty = input("Level (0-20) 0 ist einfach, 20 ist schwer: ")
+print("Level beträgt " + difficulty)
+difficulty = int(difficulty)
+
+speed = input("Geschwindigkeit (1-3) 1 ist am schnellsten, 3 am langsamsten: ")
+while(checkInt(speed) == False or int(speed) < 1 or int(speed) > 3):
+  print("Bitte Geschwindigkeit zwischen 1 und 3 eingeben.")
+  difficulty = input("Geschwindigkeit (1-3) 1 ist am schnellsten, 3 am langsamsten: ")
+print("Geschwindigkeit beträgt " + speed)
+speed = int(speed)
+
+
 #Abfragen und dann beantworten
 #Spielername, Difficulty 0-20, Speed 1-3, Spieleranzahl 1-2
-DrMario(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[1])
+DrMario(difficulty, speed, player_number, player_name_p1, player_name_p2)
