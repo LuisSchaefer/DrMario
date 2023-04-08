@@ -7,8 +7,11 @@ def x_koords_to_gamefield( x):
 def y_koords_to_gamefield(y):
        return int(y/5)-1
     
-def gamefield_to_x_koords(gamefield):
-       return ((gamefield+1)*5)+25
+def gamefield_to_x_koords(field, gamefield):
+      if (gamefield == 1):
+       return ((field+1)*5)+25
+      if (gamefield == 2):
+       return ((field+1)*5)+125
     
 def gamefield_to_y_koords(gamefield):
        return (gamefield+1)*5
