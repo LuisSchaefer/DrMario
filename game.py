@@ -1,4 +1,3 @@
-import sys
 import stddraw
 import random
 from gameobjects import Virus, Pill, ColoredField
@@ -25,7 +24,8 @@ class DrMario:
         b = False
 
         self.highscore = Highscore(self.HIGHSCORE_FILE)
-        self.score = 0
+        self.score = []
+        self.score.append(0)
 
         #init gametable
         #background
@@ -59,29 +59,9 @@ class DrMario:
         stddraw.line(45,86,45,95)
         stddraw.line(55,86,55,95)
         stddraw.line(45,95,55,95)
-        
-        #ggf. Spielfeld Spieler2 & Spielernamen speichern & Score2 Variable initialisieren
-        stddraw.setPenColor(stddraw.BLACK)
-        if (self.player_number == 2):
-           self.playername_p2 = playername_p2
-           self.score_p2 = 0
-           #Spielfeld
-           stddraw.filledRectangle(130, 5, 40, 80)
-           stddraw.filledRectangle(145,85,10,10)
-           #Score Feld
-           stddraw.filledRectangle(175,60,20,20)
-           #Ränder Spielfeld
-           stddraw.setPenColor(stddraw.CYAN)
-           stddraw.rectangle(129,4,42,82)
-           stddraw.line(145,86,145,95)
-           stddraw.line(155,86,155,95)
-           stddraw.line(145,95,155,95)
-           #Score Beschriftung
-           stddraw.text(15, 55, "Score")
-           stddraw.text(15, 50, str(self.score_p2))
-           stddraw.setPenColor(stddraw.BLACK)
 
         #Felder für nächste Pille, Spielinformationen, Highscore  
+        stddraw.setPenColor(stddraw.BLACK)
         stddraw.filledRectangle(75, 60, 20, 20)
         stddraw.filledRectangle(75, 10, 20, 20)
         stddraw.filledRectangle(5, 45, 20,35)
@@ -98,7 +78,31 @@ class DrMario:
         stddraw.text(15, 70, self.highscore.getName())
         stddraw.text(15, 65, self.highscore.getHighScore())
         stddraw.text(15, 55, "Score")
-        stddraw.text(15, 50, str(self.score))
+        stddraw.text(15, 50, str(self.score[0]))
+        
+        #ggf. Spielfeld Spieler2 & Spielernamen speichern & Score2 Variable initialisieren
+        if (self.player_number == 2):
+           self.playername_p2 = playername_p2
+           self.score_p2 = []
+           self.score_p2.append(0)
+           stddraw.setPenColor(stddraw.BLACK)
+           #Spielfeld
+           stddraw.filledRectangle(130, 5, 40, 80)
+           stddraw.filledRectangle(145,85,10,10)
+           #Score Feld
+           stddraw.filledRectangle(175,60,20,20)
+           #Ränder Spielfeld
+           stddraw.setPenColor(stddraw.CYAN)
+           stddraw.rectangle(129,4,42,82)
+           stddraw.line(145,86,145,95)
+           stddraw.line(155,86,155,95)
+           stddraw.line(145,95,155,95)
+           #Score Beschriftung
+           stddraw.text(185, 75, "Score")
+           stddraw.text(185, 70, str(self.score_p2[0]))
+           stddraw.setPenColor(stddraw.BLACK)
+
+
 
         #erste Pille und ihre Farbe 
         self.color_1 = getrandomColor()
@@ -177,7 +181,7 @@ class DrMario:
           #Wenn es durch das rotieren nicht außerhalb des Spielfelds ist, rotiere
           if((self.fallingpill[0].rotation == 3 and self.fallingpill[0].rect2[0] > 0) or (self.fallingpill[0].rotation == 1 and self.fallingpill[0].rect2[0] < 7) or self.fallingpill[0].rotation == 2 or self.fallingpill[0].rotation == 0):
            self.fallingpill[0].rotate()
-        
+
        if (self.player_number == 2):
          if is_key_pressed[pygame.K_LEFT]:
           #Wenn nicht außerhalb des Spielfeldes (kleinergleich -1) und das Feld noch nicht belegt ist, wo die Pille hin will
@@ -208,34 +212,7 @@ class DrMario:
          self.color_2 = getrandomColor()
         #Wenn Felder wo neue Pille eigentlich entsteht belegt sind -> beende Spiel
         elif (gf[3][15] > 0 or gf[4][15] > 0):
-           stddraw.setPenColor(stddraw.RED)
-           stddraw.filledRectangle(0,0,100,100)
-           stddraw.setPenColor(stddraw.YELLOW)
-           #L
-           stddraw.filledRectangle(10,40,5,40)
-           stddraw.filledRectangle(15,40,10,5)
-           #O
-           stddraw.filledRectangle(30,45,5,30)
-           stddraw.filledRectangle(35,40,10,5)
-           stddraw.filledRectangle(35,75,10,5)
-           stddraw.filledRectangle(45,45,5,30)
-           #S
-           stddraw.filledRectangle(60, 75, 15, 5)
-           stddraw.filledRectangle(55, 65, 5, 10)
-           stddraw.filledRectangle(60, 60, 10, 5)
-           stddraw.filledRectangle(70, 45, 5, 15)
-           stddraw.filledRectangle(55, 40, 15, 5)
-           #E
-           stddraw.filledRectangle(80, 40, 5, 40)
-           stddraw.filledRectangle(85, 75, 10, 5)
-           stddraw.filledRectangle(85, 60, 10, 5)
-           stddraw.filledRectangle(85, 40, 10, 5)
-
-           self.highscore.setNewHighScore(self.playername, self.score)
-           stddraw.text(50, 20, "SCORE: " + str(self.score))
-           stddraw.show()
-           while True:
-              pass
+            self.lose(gf_nr)
         #Wenn das nicht der Fall ist, lasse die aktuelle Pille weiter fallen
         else:
          pill[0].falling()
@@ -281,41 +258,16 @@ class DrMario:
            except IndexError:
               pass
            
-    def checkVirus(self, gf, virus):
+    def checkVirus(self, gf, virus, score, gf_nr):
         
         for v in virus:
            if(gf[v.x][v.y] == 0):
               virus.remove(v)
-              self.score += self.speed
+              score[0] += self.speed
 
          #Überprüfung, ob Virus entfernt. Wenn alle entfernt -> gewonnen
         if not virus:
-           stddraw.setPenColor(stddraw.DARK_GREEN)
-           stddraw.filledRectangle(0,0,100,100)
-           stddraw.setPenColor(stddraw.YELLOW)
-           #W
-           stddraw.filledRectangle(40, 55,5,30)
-           stddraw.filledRectangle(10, 55,5,30)
-           stddraw.filledRectangle(15, 50,5,5)
-           stddraw.filledRectangle(35, 50,5,5)
-           stddraw.filledRectangle(20, 55,5,5)
-           stddraw.filledRectangle(30, 55,5,5)
-           stddraw.filledRectangle(25, 55, 5,15)
-           #I
-           stddraw.filledRectangle(50,50,5,35)
-           #N
-           stddraw.filledRectangle(60,50,5,35)
-           stddraw.filledRectangle(65,70,5,5)
-           stddraw.filledRectangle(70, 65,5,5)
-           stddraw.filledRectangle(75, 60,5,5)
-           stddraw.filledRectangle(80,50,5,35)
-
-           self.highscore.setNewHighScore(self.playername, self.score)
-
-           stddraw.text(50, 20, "SCORE: " + str(self.score))
-           stddraw.show()
-           while True:
-              pass
+            self.win(gf_nr)
            
     def logic(self):
 
@@ -323,14 +275,14 @@ class DrMario:
       
         self.checkColoredFields(self.gamefield, self.coloredField, 1)
 
-        self.checkVirus(self.gamefield, self.virus)
+        self.checkVirus(self.gamefield, self.virus, self.score, 1)
         
         if (self.player_number == 2):
          self.pill_collision(self.fallingpill_p2, self.gamefield_p2, self.coloredField_p2, 2)
          
          self.checkColoredFields(self.gamefield_p2, self.coloredField_p2, 2)
 
-         self.checkVirus(self.gamefield_p2, self.virus_p2)           
+         self.checkVirus(self.gamefield_p2, self.virus_p2, self.score_p2, 2)           
 
            
       
@@ -345,9 +297,94 @@ class DrMario:
        stddraw.setPenColor(stddraw.BLACK)
        stddraw.filledRectangle(5, 45, 20,7.5)
        stddraw.setPenColor(stddraw.CYAN)
-       stddraw.text(15, 50, str(self.score))
+       stddraw.text(15, 50, str(self.score[0]))
+       if (self.player_number == 2):
+         stddraw.setPenColor(stddraw.BLACK)
+         stddraw.filledRectangle(175,65,20,7.5)
+         stddraw.setPenColor(stddraw.CYAN)
+         stddraw.text(185, 70, str(self.score_p2[0]))
        stddraw.show(self.speed)
 
+    def lose(self, player):
+
+      stddraw.setPenColor(stddraw.RED)
+      stddraw.filledRectangle(0,0,100*self.player_number,100)
+      stddraw.setPenColor(stddraw.YELLOW)
+      #L
+      stddraw.filledRectangle(10,40,5,40)
+      stddraw.filledRectangle(15,40,10,5)
+      #O
+      stddraw.filledRectangle(30,45,5,30)
+      stddraw.filledRectangle(35,40,10,5)
+      stddraw.filledRectangle(35,75,10,5)
+      stddraw.filledRectangle(45,45,5,30)
+      #S
+      stddraw.filledRectangle(60, 75, 15, 5)
+      stddraw.filledRectangle(55, 65, 5, 10)
+      stddraw.filledRectangle(60, 60, 10, 5)
+      stddraw.filledRectangle(70, 45, 5, 15)
+      stddraw.filledRectangle(55, 40, 15, 5)
+      #E
+      stddraw.filledRectangle(80, 40, 5, 40)
+      stddraw.filledRectangle(85, 75, 10, 5)
+      stddraw.filledRectangle(85, 60, 10, 5)
+      stddraw.filledRectangle(85, 40, 10, 5)
+
+      self.highscore.setNewHighScore(self.playername, self.score[0])
+      if (self.player_number == 2):
+        self.highscore.setNewHighScore(self.playername_p2, self.score_p2[0])
+        if(player == 1):
+          stddraw.text(150,70, "Spieler 1 hat verloren")
+        else:
+          stddraw.text(150,70, "Spieler 2 hat verloren")
+        stddraw.text(150, 60, "Score Spieler 1: " + str(self.score[0]))  
+        stddraw.text(150, 55, "Score Spieler 2: " + str(self.score_p2[0]))  
+        stddraw.text(150, 45, "Highscore von " + self.highscore.getName() + " mit " + self.highscore.getHighScore() + " Punkten")
+      else:
+         stddraw.text(50, 20, "Score: " + str(self.score[0]))
+         stddraw.text(50, 15, "Highscore von " + self.highscore.getName() + " mit " + self.highscore.getHighScore() + " Punkten")
+      stddraw.show()
+      while True:
+         pass 
+
+    def win(self, player): 
+
+      stddraw.setPenColor(stddraw.DARK_GREEN)
+      stddraw.filledRectangle(0,0,100*self.player_number,100)
+      stddraw.setPenColor(stddraw.YELLOW)
+      #W
+      stddraw.filledRectangle(40, 55,5,30)
+      stddraw.filledRectangle(10, 55,5,30)
+      stddraw.filledRectangle(15, 50,5,5)
+      stddraw.filledRectangle(35, 50,5,5)
+      stddraw.filledRectangle(20, 55,5,5)
+      stddraw.filledRectangle(30, 55,5,5)
+      stddraw.filledRectangle(25, 55, 5,15)
+      #I
+      stddraw.filledRectangle(50,50,5,35)
+      #N
+      stddraw.filledRectangle(60,50,5,35)
+      stddraw.filledRectangle(65,70,5,5)
+      stddraw.filledRectangle(70, 65,5,5)
+      stddraw.filledRectangle(75, 60,5,5)
+      stddraw.filledRectangle(80,50,5,35)
+      self.highscore.setNewHighScore(self.playername, self.score[0])
+      if (self.player_number == 2):
+        self.highscore.setNewHighScore(self.playername_p2, self.score_p2[0])
+        if(player == 1):
+          stddraw.text(150,70, "Spieler 1 hat gewonnen")
+        else:
+          stddraw.text(150,70, "Spieler 2 hat gewonnen")
+        stddraw.text(150, 60, "Score Spieler 1: " + str(self.score[0]))  
+        stddraw.text(150, 55, "Score Spieler 2: " + str(self.score_p2[0]))  
+        stddraw.text(150, 45, "Highscore von " + self.highscore.getName() + " mit " + self.highscore.getHighScore() + " Punkten")
+      else:
+         stddraw.text(50, 20, "Score: " + str(self.score[0]))
+         stddraw.text(50, 15, "Highscore von " + self.highscore.getName() + " mit " + self.highscore.getHighScore() + " Punkten")
+
+      stddraw.show()
+      while True:
+         pass
 player_number = input("Anzahl Spieler (1-2): ")
 while (checkInt(player_number) == False or int(player_number) > 2 or int(player_number) < 1):
    print("Bitte Anzahl Spieler entweder auf 1 oder 2 setzen.")
