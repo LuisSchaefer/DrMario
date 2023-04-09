@@ -38,7 +38,7 @@ def setColor(color):
         else:
           stddraw.setPenColor(stddraw.GREEN)
           return 3
-       
+        
 def checkInt(input):
     try:
         value = int(input)
@@ -46,3 +46,4 @@ def checkInt(input):
     except ValueError:
         print("Eingabe muss vom Typ integer sein.")
         return False
+    #ToDO Sound einfügen (s. Downloads)
