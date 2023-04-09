@@ -4,6 +4,7 @@ from gameobjects import Virus, Pill, ColoredField
 import pygame.key
 from utils import *
 from pygame import mixer
+from pygame.mixer import Sound
 from gamesettings import Highscore
 
 class DrMario:
@@ -90,6 +91,8 @@ class DrMario:
            stddraw.filledRectangle(130, 5, 40, 80)
            stddraw.filledRectangle(145,85,10,10)
            #Score Feld
+           stddraw.filledRectangle(105,60,20,20)
+           #nächste Pille Feld
            stddraw.filledRectangle(175,60,20,20)
            #Ränder Spielfeld
            stddraw.setPenColor(stddraw.CYAN)
@@ -98,17 +101,28 @@ class DrMario:
            stddraw.line(155,86,155,95)
            stddraw.line(145,95,155,95)
            #Score Beschriftung
-           stddraw.text(185, 75, "Score")
-           stddraw.text(185, 70, str(self.score_p2[0]))
+           stddraw.text(115, 75, "Score")
+           stddraw.text(115, 70, str(self.score_p2[0]))
            stddraw.setPenColor(stddraw.BLACK)
+           #nächste Pille
+           
+
 
 
 
         #erste Pille und ihre Farbe 
-        self.color_1 = getrandomColor()
-        self.color_2 = getrandomColor()
+        color_1 = getrandomColor()
+        color_2 = getrandomColor()
+        self.pill_color_queue = []
+        i = 0
+        while i < 500:
+          self.pill_color_queue.append([color_1, color_2])
+          color_1 = getrandomColor()
+          color_2 = getrandomColor()
+          i += 1
+
         self.fallingpill = []
-        self.fallingpill.append(Pill(self.color_1, self.color_2, 1))
+        self.fallingpill.append(Pill(self.pill_color_queue[0][0], self.pill_color_queue[0][1], 1))
 
         #Liste für bemalte Felder, die keine Viren sind und Liste für Viren (Gegner), Speichern die Positionen
         self.coloredField = []
@@ -118,20 +132,17 @@ class DrMario:
 
         #Falls zwei Spieler -> dasselbe nochmal
         if (self.player_number == 2):
+           self.pill_color_queue_p2 = self.pill_color_queue.copy()
            self.fallingpill_p2 = []
-           self.fallingpill_p2.append(Pill(self.color_1, self.color_2, 2))
+           self.fallingpill_p2.append(Pill(self.pill_color_queue[0][0], self.pill_color_queue[0][1], 2))
            self.coloredField_p2 = []
            self.virus_p2 = []
            self.gamefield_p2 = [[0 for j in range(16)] for i in range(8)]
 
-        #darauffolgende Farbe von Pille initialisieren
-        self.color_1 = getrandomColor()
-        self.color_2 = getrandomColor()
-
         #Initialisiere Virus, Anzahl entsprechend Schwierigkeitsgrad bzw. Level
         i = 0
         x = random.randint(0,7)
-        y = random.randint(0,12)
+        y = random.randint(0,11)
         while i < self.difficulty:
             virus_color = getrandomColor()
 
@@ -139,16 +150,15 @@ class DrMario:
               x = random.randint(0,7)
               y = random.randint(0,12) 
               
-            self.virus.append(Virus(x,y,1))
+            self.virus.append(Virus(x,y,1, virus_color))
             self.gamefield[x][y] = virus_color
             
             if (self.player_number == 2):
-               self.virus_p2.append(Virus(x,y,2))
+               self.virus_p2.append(Virus(x,y,2, virus_color))
                self.gamefield_p2[x][y] = virus_color
                pass
 
             i += 1
-        print(self.gamefield)
         #Zeige Spielfeld    
         stddraw.show(10)
 
@@ -157,6 +167,10 @@ class DrMario:
         mixer.music.load('assets/background.mp3')
         mixer.music.play()
 
+        #Töne initialisieren
+        self.pill_collide_sound = Sound("assets/collide.wav")
+        self.pill_collide_sound.set_volume(0.2)
+        self.destroy_fields_sound = Sound("assets/destroy.wav")
         #Starte die Hauptschleife
         self.main_loop()
 
@@ -200,6 +214,7 @@ class DrMario:
     def pill_collision(self, pill, gf, cf, gf_nr):
         #Logik für aktuelle Pille 1. Kollisionscheck: Wenn die Pille landet mache sie zu zwei farbigen Feldern
         if (gf[pill[0].rect1[0]][(pill[0].rect1[1])-1] > 0 or gf[pill[0].rect2[0]][(pill[0].rect2[1])-1] > 0 or pill[0].koords[1] == 0):
+         self.pill_collide_sound.play()
          cf.append(ColoredField(pill[0].rect1[0], pill[0].rect1[1], pill[0].color1, gf_nr))
          cf.append(ColoredField(pill[0].rect2[0], pill[0].rect2[1], pill[0].color2, gf_nr))
          gf[cf[-1].x][cf[-1].y] = cf[-1].getColor()
@@ -207,9 +222,12 @@ class DrMario:
          pill.clear()
         #Wenn somit keine Pille mehr existiert und die Felder, welche für Spielende sorgen nicht belegt sind: Erstelle neue Pille
         if (not pill and gf[3][15] == 0 and gf[4][15] == 0):
-         pill.append(Pill(self.color_1, self.color_2, gf_nr))
-         self.color_1 = getrandomColor()
-         self.color_2 = getrandomColor()
+         if (gf_nr == 1):
+          self.pill_color_queue.pop(0)
+          pill.append(Pill(self.pill_color_queue[0][0], self.pill_color_queue[0][1], gf_nr))
+         if (gf_nr == 2):
+           self.pill_color_queue_p2.pop(0)
+           pill.append(Pill(self.pill_color_queue_p2[0][0], self.pill_color_queue_p2[0][1], gf_nr))
         #Wenn Felder wo neue Pille eigentlich entsteht belegt sind -> beende Spiel
         elif (gf[3][15] > 0 or gf[4][15] > 0):
             self.lose(gf_nr)
@@ -241,8 +259,8 @@ class DrMario:
                   count -= 1
 
              count = 0
-             print("Reihe entfernt: ")
-             print(gf)
+             self.destroy_fields_sound.play()
+
             elif (new_value != old_value):
                count = 0 
             old_value = new_value
@@ -284,25 +302,30 @@ class DrMario:
 
          self.checkVirus(self.gamefield_p2, self.virus_p2, self.score_p2, 2)           
 
-           
-      
-
-
-
     def draw(self):
-       setColor(self.color_1)
+       setColor(self.pill_color_queue[1][0])
        stddraw.filledRectangle(80, 67.5, 5, 5)
-       setColor(self.color_2)
+       setColor(self.pill_color_queue[1][1])
        stddraw.filledRectangle(85, 67.5, 5,5)
        stddraw.setPenColor(stddraw.BLACK)
+       stddraw.rectangle(80, 67.5, 5, 5)
+       stddraw.rectangle(85, 67.5, 5,5)
        stddraw.filledRectangle(5, 45, 20,7.5)
        stddraw.setPenColor(stddraw.CYAN)
        stddraw.text(15, 50, str(self.score[0]))
        if (self.player_number == 2):
          stddraw.setPenColor(stddraw.BLACK)
-         stddraw.filledRectangle(175,65,20,7.5)
+         stddraw.filledRectangle(105,65,20,7.5)
          stddraw.setPenColor(stddraw.CYAN)
-         stddraw.text(185, 70, str(self.score_p2[0]))
+         stddraw.text(115, 70, str(self.score_p2[0]))
+         #nächste Pille aktualisieren
+         setColor(self.pill_color_queue_p2[1][0])
+         stddraw.filledRectangle(180, 67.5,5,5)
+         setColor(self.pill_color_queue_p2[1][1])
+         stddraw.filledRectangle(185,67.5,5,5)
+         stddraw.setPenColor(stddraw.BLACK)
+         stddraw.rectangle(180, 67.5,5,5)
+         stddraw.rectangle(185,67.5,5,5)
        stddraw.show(self.speed)
 
     def lose(self, player):
@@ -385,6 +408,7 @@ class DrMario:
       stddraw.show()
       while True:
          pass
+
 player_number = input("Anzahl Spieler (1-2): ")
 while (checkInt(player_number) == False or int(player_number) > 2 or int(player_number) < 1):
    print("Bitte Anzahl Spieler entweder auf 1 oder 2 setzen.")
@@ -393,13 +417,22 @@ print("Anzahl Spieler beträgt " + player_number)
 player_number = int(player_number)
 
 if (player_number == 2):
- player_name_p1 = input("Spielername Spieler 1: ")
+ player_name_p1 = input("Spielername Spieler 1 (max. 10 Zeichen): ")
+ while (len(player_name_p1) > 10):
+   print("Der eingegebene Name besitzt mehr als 10 Zeichen")
+   player_name_p1 = input("Spielername Spieler 1 (max. 10 Zeichen): ")
  player_name_p2 = input("Spielername Spieler 2: ")
+ while (len(player_name_p2) > 10):
+   print("Der eingegebene Name besitzt mehr als 10 Zeichen")
+   player_name_p2 = input("Spielername Spieler 2 (max. 10 Zeichen): ")
  print("Spielername von Spieler 1 lautet: " + player_name_p1)
  print("Spielername von Spieler 2 lautet: " + player_name_p2)
 
 elif (player_number == 1):
   player_name_p1 = input("Spielername: ")
+  while (len(player_name_p1) > 10):
+   print("Der eingegebene Name besitzt mehr als 10 Zeichen")
+   player_name_p1 = input("Spielername Spieler 1 (max. 10 Zeichen): ")
   player_name_p2 = "null"
   print("Spielername lautet: " + player_name_p1)
 
