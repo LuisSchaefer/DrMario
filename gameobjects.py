@@ -1,6 +1,6 @@
 import stddraw
-import random
 from utils import *
+from picture import Picture
 
 class GameObject:
     def __init__(self, x, y):
@@ -10,13 +10,18 @@ class GameObject:
        return self.color
        
 class Virus(GameObject):
-    def __init__(self, x, y, gamefield):
+    def __init__(self, x, y, gamefield, color):
 
         self.gamefield = gamefield
         self.x = x
         self.y = y
 
-        stddraw.filledRectangle(gamefield_to_x_koords(x, self.gamefield), gamefield_to_y_koords(y), 5, 5)
+        if (color == 1):
+         stddraw.picture(Picture("assets/virus_rot.jpeg"), gamefield_to_x_koords(x+0.5, self.gamefield), gamefield_to_y_koords(y+0.5))
+        elif (color == 2):
+         stddraw.picture(Picture("assets/virus_blau.jpeg"), gamefield_to_x_koords(x+0.5, self.gamefield), gamefield_to_y_koords(y+0.5))
+        elif (color == 3):
+         stddraw.picture(Picture("assets/virus_gruen.jpeg"), gamefield_to_x_koords(x+0.5, self.gamefield), gamefield_to_y_koords(y+0.5))
         
 class Pill(GameObject):
     def __init__(self, color_1, color_2, gamefield):
@@ -27,6 +32,9 @@ class Pill(GameObject):
         self.rect1 = [3, 15]
         self.color2 = setColor(color_2)
         stddraw.filledRectangle(gamefield_to_x_koords(4, self.gamefield), gamefield_to_y_koords(15), 5, 5)
+        stddraw.setPenColor(stddraw.BLACK)
+        stddraw.rectangle(gamefield_to_x_koords(3, self.gamefield), gamefield_to_y_koords(15), 5, 5)
+        stddraw.rectangle(gamefield_to_x_koords(4, self.gamefield), gamefield_to_y_koords(15), 5, 5)
         self.rect2 = [4, 15]
         self.koords = [3, 15]
         self.rotation = 0
@@ -54,6 +62,9 @@ class Pill(GameObject):
        stddraw.filledRectangle(gamefield_to_x_koords(self.rect1[0], self.gamefield), gamefield_to_y_koords(self.rect1[1]),5,5)
        setColor(self.color2)
        stddraw.filledRectangle(gamefield_to_x_koords(self.rect2[0], self.gamefield), gamefield_to_y_koords(self.rect2[1]),5,5)
+       stddraw.setPenColor(stddraw.BLACK)
+       stddraw.rectangle(gamefield_to_x_koords(self.rect1[0], self.gamefield), gamefield_to_y_koords(self.rect1[1]),5,5)
+       stddraw.rectangle(gamefield_to_x_koords(self.rect2[0], self.gamefield), gamefield_to_y_koords(self.rect2[1]),5,5)
 
 
        
@@ -82,6 +93,10 @@ class Pill(GameObject):
        stddraw.filledRectangle(gamefield_to_x_koords(self.rect1[0], self.gamefield), gamefield_to_y_koords(self.rect1[1]),5,5)
        setColor(self.color2)
        stddraw.filledRectangle(gamefield_to_x_koords(self.rect2[0], self.gamefield), gamefield_to_y_koords(self.rect2[1]),5,5)
+       stddraw.setPenColor(stddraw.BLACK)
+       stddraw.rectangle(gamefield_to_x_koords(self.rect1[0], self.gamefield), gamefield_to_y_koords(self.rect1[1]),5,5)
+       stddraw.rectangle(gamefield_to_x_koords(self.rect2[0], self.gamefield), gamefield_to_y_koords(self.rect2[1]),5,5)
+
        
     def move(self, direction):
        stddraw.setPenColor(stddraw.BLACK)
@@ -100,7 +115,11 @@ class Pill(GameObject):
        setColor(self.color1)
        stddraw.filledRectangle(gamefield_to_x_koords(self.rect1[0], self.gamefield), gamefield_to_y_koords(self.rect1[1]),5,5)
        setColor(self.color2)
-       stddraw.filledRectangle(gamefield_to_x_koords(self.rect2[0], self.gamefield), gamefield_to_y_koords(self.rect2[1]),5,5)     
+       stddraw.filledRectangle(gamefield_to_x_koords(self.rect2[0], self.gamefield), gamefield_to_y_koords(self.rect2[1]),5,5) 
+       stddraw.setPenColor(stddraw.BLACK)
+       stddraw.rectangle(gamefield_to_x_koords(self.rect1[0], self.gamefield), gamefield_to_y_koords(self.rect1[1]),5,5)
+       stddraw.rectangle(gamefield_to_x_koords(self.rect2[0], self.gamefield), gamefield_to_y_koords(self.rect2[1]),5,5) 
+
 
 
 
@@ -113,6 +132,8 @@ class ColoredField(GameObject):
       self.y = y
       stddraw.filledRectangle(gamefield_to_x_koords(self.x, self.gamefield),gamefield_to_y_koords(self.y),5,5)
       self.color = color
+      stddraw.setPenColor(stddraw.BLACK)
+      stddraw.rectangle(gamefield_to_x_koords(self.x, self.gamefield),gamefield_to_y_koords(self.y),5,5)
 
    def falling(self):
       stddraw.setPenColor(stddraw.BLACK)
@@ -121,4 +142,6 @@ class ColoredField(GameObject):
       self.y -= 1
       setColor(self.color)
       stddraw.filledRectangle(gamefield_to_x_koords(self.x, self.gamefield), gamefield_to_y_koords(self.y),5,5)
+      stddraw.setPenColor(stddraw.BLACK)
+      stddraw.rectangle(gamefield_to_x_koords(self.x, self.gamefield), gamefield_to_y_koords(self.y),5,5)
       stddraw.show(100)
